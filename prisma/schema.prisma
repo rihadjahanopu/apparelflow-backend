@@ -1,0 +1,92 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                Int               @id @default(autoincrement())
+  email             String            @unique
+  password_hash     String
+  role              String            // cutting_supervisor, cutting_verifier, sewing_supervisor
+  full_name         String
+  created_at        DateTime          @default(now())
+  cutting_orders    CuttingOrder[]
+  verification_logs VerificationLog[]
+
+  @@map("users")
+}
+
+model Recipe {
+  id                Int               @id @default(autoincrement())
+  recipe_code       String            @unique
+  name              String
+  category          String
+  std_fabric_yards  Float
+  wastage_cap       Float             // Percentage, e.g. 5.0 for 5.0%
+  recipe_components RecipeComponent[]
+  cutting_orders    CuttingOrder[]
+
+  @@map("recipes")
+}
+
+model RecipeComponent {
+  id                 Int                @id @default(autoincrement())
+  recipe_id          Int
+  recipe             Recipe             @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+  component_name     String
+  pieces_per_garment Int
+  image_url          String?
+  verification_items VerificationItem[]
+
+  @@map("recipe_components")
+}
+
+model CuttingOrder {
+  id                 Int                @id @default(autoincrement())
+  order_no           String             @unique
+  recipe_id          Int
+  recipe             Recipe             @relation(fields: [recipe_id], references: [id])
+  target_qty         Int
+  fabric_roll_id     String
+  actual_fabric_yds  Float
+  status             String             @default("READY_FOR_VERIFICATION") // READY_FOR_VERIFICATION, VERIFIED, REJECTED, IN_SEWING, COMPLETED
+  created_by         Int
+  creator            User               @relation(fields: [created_by], references: [id])
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+  verification_items VerificationItem[]
+  verification_logs  VerificationLog[]
+
+  @@map("cutting_orders")
+}
+
+model VerificationItem {
+  id           Int             @id @default(autoincrement())
+  order_id     Int
+  order        CuttingOrder    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  component_id Int
+  component    RecipeComponent @relation(fields: [component_id], references: [id])
+  expected_qty Int
+  actual_qty   Int
+  status       String          // 'MATCH', 'EXCESS', 'SHORTAGE' (or 'GREEN', 'YELLOW', 'RED')
+
+  @@map("verification_items")
+}
+
+model VerificationLog {
+  id             Int          @id @default(autoincrement())
+  order_id       Int
+  order          CuttingOrder @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  verifier_id    Int
+  verifier       User         @relation(fields: [verifier_id], references: [id])
+  decision       String       // 'APPROVED' | 'REJECTED'
+  rejection_note String?
+  wastage_pct    Float
+  timestamp      DateTime     @default(now())
+
+  @@map("verification_logs")
+}
+
