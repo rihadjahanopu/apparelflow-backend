@@ -12,7 +12,7 @@ During the architecture, scaffolding, and implementation phases of ApparelFlow E
 
 | AI Tool / Engine | Purpose & Domain | Tasks Delegated | Human Oversight / Guardrails Applied |
 | :--- | :--- | :--- | :--- |
-| **Google Antigravity & Claude 3.5 Sonnet** | Full-Stack Scaffolding & System Architecture | Monorepo layout (`frontend/` & `backend/`), Prisma relational schema modeling, Express 5 route definitions, and Vitest suite generation. | Strict architectural constraints: monorepo separation, pure JS driver adapters for Node 24, and explicit HTTP 422/403 protocol enforcement. |
+| **Google Gemini, Claude Sonnet & Kimi** | Full-Stack Scaffolding & System Architecture | Monorepo layout (`frontend/` & `backend/`), Prisma relational schema modeling, Express 5 route definitions, and Vitest suite generation. | Strict architectural constraints: monorepo separation, pure JS driver adapters for Node 24, and explicit HTTP 422/403 protocol enforcement. |
 | **Next.js Turbopack & React 19 Engine** | Modern Frontend UI / UX & State Management | Client layout, Zustand authentication store, glassmorphic layout styling, and mobile touch-friendly component views. | High-contrast accessibility review, CSS contrast guards for inputs, and mobile breakpoint verification. |
 | **Modern Web Guidance CLI** | Web Standards & Best Practices Audit | Validating modern CSS backdrop-filter blur, CSS `:has()` / `:user-valid` patterns, and accessibility touch target standards. | Ensured cross-browser baseline compliance and zero unneeded third-party layout libraries. |
 
