@@ -285,6 +285,21 @@ pnpm test
 # or: npm test
 ```
 
+### Verified Test Suite Output (100% Pass):
+```text
+ ✓ tests/gatekeeper.test.ts (5 tests) 6829ms
+   ✓ ApparelFlow Gatekeeper & RBAC Integration Tests (5)
+     ✓ Test 1: All GREEN order approval by verifier succeeds and updates status to VERIFIED
+     ✓ Test 2: Approval attempt with a RED component returns HTTP 422 Unprocessable Entity
+     ✓ Test 3: Rejection without a note is blocked by backend validation (HTTP 422)
+     ✓ Test 4: Non-verifier user attempting approval returns HTTP 403 Forbidden
+     ✓ Test 5: DB query for Sewing Queue enforces strictly WHERE status = "VERIFIED"
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Duration  7.42s
+```
+
 ---
 
 ## 🔑 8. Pre-Seeded Demo Credentials
