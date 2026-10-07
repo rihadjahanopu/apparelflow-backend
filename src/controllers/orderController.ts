@@ -188,6 +188,21 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response): Pro
     const randomHex = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     const order_no = `ORD-${new Date().getFullYear()}-${timestamp}${randomHex}`;
 
+    // Defensive creator ID resolution
+    let created_by = req.user?.id;
+    const userRecord = created_by ? await prisma.user.findUnique({ where: { id: created_by } }) : null;
+    if (!userRecord && req.user?.email) {
+      const fallbackUser = await prisma.user.findUnique({ where: { email: req.user.email } });
+      if (fallbackUser) {
+        created_by = fallbackUser.id;
+      }
+    }
+
+    if (!created_by) {
+      res.status(401).json({ error: 'UNAUTHORIZED', message: 'User record not found in database. Please log in again.' });
+      return;
+    }
+
     const order = await prisma.cuttingOrder.create({
       data: {
         order_no,
@@ -196,7 +211,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response): Pro
         fabric_roll_id: fabric_roll_id.trim(),
         actual_fabric_yds,
         status: 'READY_FOR_VERIFICATION',
-        created_by: req.user!.id,
+        created_by,
       },
     });
 

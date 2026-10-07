@@ -164,11 +164,26 @@ export const approveOrder = async (
       },
     });
 
+    // Defensive verifier ID resolution
+    let verifier_id = req.user?.id;
+    const userRecord = verifier_id ? await prisma.user.findUnique({ where: { id: verifier_id } }) : null;
+    if (!userRecord && req.user?.email) {
+      const fallbackUser = await prisma.user.findUnique({ where: { email: req.user.email } });
+      if (fallbackUser) {
+        verifier_id = fallbackUser.id;
+      }
+    }
+
+    if (!verifier_id) {
+      res.status(401).json({ error: 'UNAUTHORIZED', message: 'Verifier record not found in database. Please log in again.' });
+      return;
+    }
+
     // Create immutable audit log
     const verificationLog = await prisma.verificationLog.create({
       data: {
         order_id: id,
-        verifier_id: req.user!.id,
+        verifier_id,
         decision: 'APPROVED',
         rejection_note: null,
         wastage_pct: wastage.wastagePct,
@@ -244,11 +259,26 @@ export const rejectOrder = async (
       },
     });
 
+    // Defensive verifier ID resolution
+    let verifier_id = req.user?.id;
+    const userRecord = verifier_id ? await prisma.user.findUnique({ where: { id: verifier_id } }) : null;
+    if (!userRecord && req.user?.email) {
+      const fallbackUser = await prisma.user.findUnique({ where: { email: req.user.email } });
+      if (fallbackUser) {
+        verifier_id = fallbackUser.id;
+      }
+    }
+
+    if (!verifier_id) {
+      res.status(401).json({ error: 'UNAUTHORIZED', message: 'Verifier record not found in database. Please log in again.' });
+      return;
+    }
+
     // Create immutable audit log
     const verificationLog = await prisma.verificationLog.create({
       data: {
         order_id: id,
-        verifier_id: req.user!.id,
+        verifier_id,
         decision: 'REJECTED',
         rejection_note: rejection_note.trim(),
         wastage_pct: wastage.wastagePct,
